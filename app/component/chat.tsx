@@ -8,7 +8,7 @@ const Chat = () => {
     const { session } = useSession();
 
     useEffect(() => {
-        fetchSession();
+        // fetchSession();
     }, [])
     const fetchSession = async () => {
         const url = `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/session`;
