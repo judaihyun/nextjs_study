@@ -1,6 +1,5 @@
 // app/api/session/route.ts
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 const validToken =
     "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";

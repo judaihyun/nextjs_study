@@ -1,13 +1,20 @@
+import Chat from "@/app/component/chat";
+
 export default async function Page({
-    params,
+    params
 }: {
-    params: Promise<{ chatId: string }>
+    params: Promise<{ chatId: string }>;
 }) {
     const { chatId } = await params;
-    if (chatId === 'new') {
-        console.log('new chatId:', chatId);
+    if (chatId === "new") {
+        console.log("new chatId:", chatId);
     } else {
-        console.log('existing chatId:', chatId);
+        console.log("existing chatId:", chatId);
     }
-    return <div>My Post: {chatId}</div>
+    return (
+        <div>
+            {/* My chatid: {chatId} */}
+            <Chat />
+        </div>
+    );
 }
