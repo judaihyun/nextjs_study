@@ -27,6 +27,7 @@ const Chat = () => {
             content: "안녕하세요. 무엇을 도와드릴까요?"
         }
     ]);
+    const [executionTime, setExecutionTime] = useState<number | null>(null);
 
     useEffect(() => {
         fetchSession();
@@ -67,6 +68,7 @@ const Chat = () => {
         abortController.current?.abort();
         const controller = new AbortController();
         abortController.current = controller;
+        const startTime = performance.now();
         setMessages([
             ...messages,
             {
@@ -74,10 +76,10 @@ const Chat = () => {
                 content: "새로운 질문입니다."
             }
         ]);
-        main(controller.signal);
+        main(controller.signal, startTime);
     };
 
-    const main = async (signal: AbortSignal) => {
+    const main = async (signal: AbortSignal, startTime: number) => {
         // const analysis = await client.analysisGuide(signal);
         // setMessage(prev => [
         //     ...prev,
@@ -101,21 +103,15 @@ const Chat = () => {
             client.sqlGeneration,
             client.insights
         ];
-        const results: (AnalysisResult | null)[] = new Array(apis.length).fill(
-            null
-        );
+        const results: (AnalysisResult | null)[] = new Array(apis.length).fill(null);
         let renderedCount = 0;
 
         // 각 API를 병렬 호출하면서 순차 언락 렌더링
-        apis.forEach((apiFn, idx) => {
+        const promises = apis.map((apiFn, idx) =>
             apiFn(signal)
                 .then(res => {
                     results[idx] = res;
-                    // 앞 순서가 모두 채워졌다면 연속으로 렌더
-                    while (
-                        renderedCount < results.length &&
-                        results[renderedCount]
-                    ) {
+                    while (renderedCount < results.length && results[renderedCount]) {
                         const { data, delay } = results[renderedCount]!;
                         setMessages(prev => [
                             ...prev,
@@ -138,7 +134,14 @@ const Chat = () => {
                         ]);
                         renderedCount++;
                     }
-                });
+                })
+        );
+
+        // 모든 API 응답이 완료되면 실행 시간을 계산
+        Promise.allSettled(promises).then(() => {
+            const endTime = performance.now();
+            const totalTime = endTime - startTime;
+            setExecutionTime(totalTime);
         });
     };
 
@@ -161,6 +164,11 @@ const Chat = () => {
             <button onClick={() => abortController.current?.abort()}>
                 Abort
             </button>
+            {executionTime !== null && (
+                <div style={{ marginTop: '10px' }}>
+                    <strong>전체 실행 시간:</strong> {executionTime.toFixed(2)}ms
+                </div>
+            )}
         </div>
     );
 };
