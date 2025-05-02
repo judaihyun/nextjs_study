@@ -28,6 +28,7 @@ const Chat = () => {
         }
     ]);
     const [executionTime, setExecutionTime] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchSession();
@@ -69,6 +70,8 @@ const Chat = () => {
         const controller = new AbortController();
         abortController.current = controller;
         const startTime = performance.now();
+        setIsLoading(true);
+        setExecutionTime(null);
         setMessages([
             ...messages,
             {
@@ -142,6 +145,7 @@ const Chat = () => {
             const endTime = performance.now();
             const totalTime = endTime - startTime;
             setExecutionTime(totalTime);
+            setIsLoading(false);
         });
     };
 
@@ -160,7 +164,9 @@ const Chat = () => {
                     </div>
                 ))}
             </MessageBox>
-            <button onClick={handleSubmit}>Submit</button>
+            <button onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? '처리 중...' : 'Submit'}
+            </button>
             <button onClick={() => abortController.current?.abort()}>
                 Abort
             </button>
