@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "../../provider/session-provider";
+import { useSession } from "../provider/session-provider";
 import styles from "../../styles/chat.module.css";
 
 const ChatHeader = () => {

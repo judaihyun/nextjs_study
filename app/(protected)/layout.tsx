@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { SessionProvider } from '../provider/session-provider';
+import { SessionProvider } from '../../component/provider/session-provider';
 import { NextIntlClientProvider } from 'next-intl';
 import getLocale from '@/lib/getCustomLocale';
 import { getMessages } from 'next-intl/server';

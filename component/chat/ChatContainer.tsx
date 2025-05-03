@@ -1,11 +1,11 @@
 "use client";
 import { useRef, useState } from "react";
-import { useSession } from "../../provider/session-provider";
+import { useSession } from "../provider/session-provider";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 import styles from "../../styles/chat.module.css";
-import client from "../../lib/api/client";
+import clientApi from "@/lib/client-api";
 
 type Message = {
     type: "user" | "assistant";
@@ -45,9 +45,9 @@ const ChatContainer = () => {
 
     const main = async (signal: AbortSignal, startTime: number) => {
         const apis = [
-            client.analysisGuide,
-            client.sqlGeneration,
-            client.insights
+            clientApi.analysisGuide,
+            clientApi.sqlGeneration,
+            clientApi.insights
         ];
         const results = new Array(apis.length).fill(null);
         let renderedCount = 0;

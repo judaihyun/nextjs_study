@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useSession } from "../provider/session-provider";
+import { useSession } from "../../component/provider/session-provider";
 
 export default function Home() {
     const { session } = useSession();

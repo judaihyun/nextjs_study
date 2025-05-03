@@ -28,10 +28,14 @@ export async function auth() {
         return null;
     }
 
-    const data = await res.json();
-
-    return {
-        user: data.user, // 예시: { name: '홍길동' }
-        locale: data.locale // 예시: 'ko', 'en'
-    };
+    try {
+        const data = await res.json();
+        return {
+            user: data.user, // 예시: { name: '홍길동' }
+            locale: data.locale // 예시: 'ko', 'en'
+        };
+    } catch (e) {
+        console.error("auth: JSON parse error", e);
+        return null;
+    }
 }

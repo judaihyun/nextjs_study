@@ -1,4 +1,4 @@
-import Chat from "@/app/component/chat";
+import ChatContainer from "@/component/chat/ChatContainer";
 
 export default async function Page({
     params
@@ -14,7 +14,7 @@ export default async function Page({
     return (
         <div>
             {/* My chatid: {chatId} */}
-            <Chat />
+            <ChatContainer />
         </div>
     );
 }
