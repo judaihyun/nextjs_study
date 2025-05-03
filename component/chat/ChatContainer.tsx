@@ -4,7 +4,7 @@ import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 import styles from "../../styles/chat.module.css";
-import clientApi from "@/lib/client-api/client-api";
+import clientApi from "@/lib/client-api/clientApi";
 
 type Message = {
     type: "user" | "assistant";

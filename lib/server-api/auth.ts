@@ -1,3 +1,4 @@
+import Env from "@/constants/env";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -8,7 +9,7 @@ export async function auth() {
         return null;
     }
     console.log("token:", token);
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/session`;
+    const url = `${Env.API_URL || ""}/api/session`;
     console.log("🔗 Fetching:", url);
     const res = await fetch(url, {
         method: "GET",
