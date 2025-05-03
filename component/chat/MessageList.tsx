@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
-import styles from "../../styles/chat.module.css";
 
 export type Message = {
     type: "user" | "assistant";
@@ -24,9 +23,17 @@ const MessageList = ({ messages }: MessageListProps) => {
     }, [messages]);
 
     return (
-        <div ref={containerRef} className={styles.messageList}>
-            {messages.map((message, index) => (
-                <MessageItem key={index} message={message} />
+        <div
+            ref={containerRef}
+            className="flex-1 overflow-y-auto p-5 bg-gray-100 rounded-lg mb-5 min-h-0"
+        >
+            {messages.map((msg, i) => (
+                <MessageItem
+                    key={i}
+                    type={msg.type}
+                    content={msg.content}
+                    delay={msg.delay}
+                />
             ))}
         </div>
     );

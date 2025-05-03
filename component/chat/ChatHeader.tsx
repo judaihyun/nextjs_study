@@ -6,12 +6,8 @@ const ChatHeader = () => {
     const session = useSessionStore(state => state.session)
 
     return (
-        <div className={styles.chatHeader}>
-            <h1>Chat Page</h1>
-            <p>Welcome, {session?.user?.name}</p>
-            <div>
-                <a href="/">Home</a>
-            </div>
+        <div className="mb-5">
+            <h1 className="m-0 text-2xl">Chat</h1>
         </div>
     );
 };
