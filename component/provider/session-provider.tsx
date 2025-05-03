@@ -1,40 +1,44 @@
-"use client";
+'use client'
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import { createSessionStore, SessionState, SessionStore } from '@/lib/store/session'
+import { type ReactNode, createContext, useRef, useContext } from 'react'
+import { useStore, type StoreApi } from 'zustand'
 
-// 세션 타입 정의
-interface User {
-    id: number;
-    name: string;
+export type SessionStoreApi = ReturnType<typeof createSessionStore>
+
+export const SessionStoreContext = createContext<SessionStoreApi | undefined>(
+    undefined,
+)
+
+export interface SessionStoreProviderProps {
+    children: ReactNode
+    initialState: SessionState
 }
 
-export interface Session {
-    user: User;
-    locale: string;
-}
+export const SessionStoreProvider = ({
+    children,
+    initialState
+}: SessionStoreProviderProps) => {
+    const storeRef = useRef<SessionStoreApi | null>(null)
+    if (storeRef.current === null) {
+        storeRef.current = createSessionStore(initialState)
+    }
 
-interface SessionContextValue {
-    session: Session | null;
-}
-
-// 기본값 null 세션
-const SessionContext = createContext<SessionContextValue>({ session: null });
-
-// Context 사용 훅
-export function useSession() {
-    return useContext(SessionContext);
-}
-
-// Provider 컴포넌트
-interface SessionProviderProps {
-    session: Session | null;
-    children: ReactNode;
-}
-
-export function SessionProvider({ session, children }: SessionProviderProps) {
     return (
-        <SessionContext.Provider value={{ session }}>
+        <SessionStoreContext.Provider value={storeRef.current}>
             {children}
-        </SessionContext.Provider>
-    );
+        </SessionStoreContext.Provider>
+    )
+}
+
+export const useSessionStore = <T,>(
+    selector: (store: SessionStore) => T,
+): T => {
+    const store = useContext(SessionStoreContext)
+
+    if (!store) {
+        throw new Error(`useSessionStore must be used within SessionStoreProvider`)
+    }
+
+    return useStore(store, selector)
 }

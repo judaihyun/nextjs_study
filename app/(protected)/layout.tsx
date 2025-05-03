@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 import { auth } from "@/lib/server-api/auth";
 import { redirect } from "next/navigation";
-import { SessionProvider } from "../../component/provider/session-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { SessionStoreProvider } from "@/component/provider/session-provider";
 
 export default async function ProtectedLayout({
     children
@@ -11,7 +11,6 @@ export default async function ProtectedLayout({
     children: ReactNode;
 }) {
     const session = await auth();
-    console.log("session:", session);
 
     if (!session) {
         redirect("/login");
@@ -19,13 +18,13 @@ export default async function ProtectedLayout({
 
     const messages = await getMessages(session.locale || "ko");
     const locale = session.locale || "ko";
-    console.log("messages:", messages);
+    console.log("session:", session);
 
     return (
-        <SessionProvider session={session}>
+        <SessionStoreProvider initialState={{ session }}>
             <NextIntlClientProvider locale={locale} messages={messages}>
                 {children}
             </NextIntlClientProvider>
-        </SessionProvider>
+        </SessionStoreProvider>
     );
 }

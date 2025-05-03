@@ -13,7 +13,6 @@ export default async function Page({
     }
     return (
         <div>
-            {/* My chatid: {chatId} */}
             <ChatContainer />
         </div>
     );
