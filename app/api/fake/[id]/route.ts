@@ -1,5 +1,3 @@
-// export const runtime = "edge";
-
 import { NextRequest, NextResponse } from "next/server";
 
 // 짧은 Lorem Ipsum 텍스트 리스트 (30자 이내)

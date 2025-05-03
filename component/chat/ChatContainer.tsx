@@ -1,11 +1,10 @@
 "use client";
 import { useRef, useState } from "react";
-import { useSession } from "../provider/session-provider";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import ChatHeader from "./ChatHeader";
 import styles from "../../styles/chat.module.css";
-import clientApi from "@/lib/client-api";
+import clientApi from "@/lib/client-api/client-api";
 
 type Message = {
     type: "user" | "assistant";
@@ -14,7 +13,6 @@ type Message = {
 };
 
 const ChatContainer = () => {
-    const { session } = useSession();
     const abortController = useRef<AbortController | null>(null);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -56,7 +54,10 @@ const ChatContainer = () => {
             apiFn(signal)
                 .then(res => {
                     results[idx] = res;
-                    while (renderedCount < results.length && results[renderedCount]) {
+                    while (
+                        renderedCount < results.length &&
+                        results[renderedCount]
+                    ) {
                         const { data, delay } = results[renderedCount]!;
                         setMessages(prev => [
                             ...prev,
@@ -101,11 +102,12 @@ const ChatContainer = () => {
             />
             {executionTime !== null && (
                 <div className={styles.executionTime}>
-                    <strong>전체 실행 시간:</strong> {executionTime.toFixed(2)}ms
+                    <strong>전체 실행 시간:</strong> {executionTime.toFixed(2)}
+                    ms
                 </div>
             )}
         </div>
     );
 };
 
-export default ChatContainer; 
+export default ChatContainer;

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const publicRoutes = ["/login", "/login-callback"];
 export function middleware(request: NextRequest) {
     const token = request.cookies.get("access_token")?.value;
     const { pathname } = request.nextUrl;
 
-    // 로그인/콜백 페이지는 예외 처리
-    if (pathname === "/login" || pathname === "/login-callback") {
+    if (publicRoutes.includes(pathname)) {
         return NextResponse.next();
     }
 
     if (!token) {
-        const loginUrl = new URL("/login", request.url);
+        const loginUrl = new URL("/login", request.nextUrl);
         return NextResponse.redirect(loginUrl);
     }
 
