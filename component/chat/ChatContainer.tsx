@@ -1,10 +1,7 @@
 "use client";
-import { useRef, useState } from "react";
-import MessageList from "./MessageList";
-import ChatInput from "./ChatInput";
-import ChatHeader from "./ChatHeader";
-import styles from "../../styles/chat.module.css";
+import { useSessionStore } from "@/component/provider/session-provider";
 import clientApi from "@/lib/client-api/clientApi";
+import { useEffect, useRef, useState } from "react";
 
 type Message = {
     type: "user" | "assistant";
@@ -13,7 +10,10 @@ type Message = {
 };
 
 const ChatContainer = () => {
+    const { session } = useSessionStore((state) => state);
     const abortController = useRef<AbortController | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
     const [messages, setMessages] = useState<Message[]>([
         {
             type: "assistant",
@@ -23,6 +23,19 @@ const ChatContainer = () => {
     const [executionTime, setExecutionTime] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+        return () => {
+            abortController.current?.abort();
+        };
+    }, []);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (el) {
+            el.scrollTop = el.scrollHeight;
+        }
+    }, [messages]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         abortController.current?.abort();
@@ -31,14 +44,14 @@ const ChatContainer = () => {
         const startTime = performance.now();
         setIsLoading(true);
         setExecutionTime(null);
-        setMessages(prev => [
-            ...prev,
+        setMessages([
+            ...messages,
             {
                 type: "user",
                 content: "새로운 질문입니다."
             }
         ]);
-        await main(controller.signal, startTime);
+        main(controller.signal, startTime);
     };
 
     const main = async (signal: AbortSignal, startTime: number) => {
@@ -54,10 +67,7 @@ const ChatContainer = () => {
             apiFn(signal)
                 .then(res => {
                     results[idx] = res;
-                    while (
-                        renderedCount < results.length &&
-                        results[renderedCount]
-                    ) {
+                    while (renderedCount < results.length && results[renderedCount]) {
                         const { data, delay } = results[renderedCount]!;
                         setMessages(prev => [
                             ...prev,
@@ -92,20 +102,50 @@ const ChatContainer = () => {
     };
 
     return (
-        <div className={styles.chatContainer}>
-            <ChatHeader />
-            <MessageList messages={messages} />
-            <ChatInput
-                onSubmit={handleSubmit}
-                isLoading={isLoading}
-                onAbort={() => abortController.current?.abort()}
-            />
-            {executionTime !== null && (
-                <div className={styles.executionTime}>
-                    <strong>전체 실행 시간:</strong> {executionTime.toFixed(2)}
-                    ms
-                </div>
-            )}
+        <div className="flex flex-col h-[calc(100vh-2rem)] max-w-3xl mx-auto p-5">
+            <div className="mb-5">
+                <h1 className="m-0 text-2xl">Chat</h1>
+            </div>
+
+            <div
+                ref={containerRef}
+                className="flex-1 overflow-y-auto p-5 bg-gray-100 rounded-lg mb-5 min-h-0"
+            >
+                {messages.map((msg, i) => (
+                    <div
+                        key={i}
+                        className={`mb-2.5 p-2.5 rounded ${msg.type === "user"
+                            ? "bg-blue-100 ml-auto max-w-[70%]"
+                            : "bg-gray-200 mr-auto max-w-[70%]"
+                            }`}
+                    >
+                        <strong>[{msg.type}]</strong> {msg.content}
+                        {msg.delay != null && <em> ({msg.delay}ms)</em>}
+                    </div>
+                ))}
+            </div>
+
+            <div className="p-5 bg-white rounded-lg shadow">
+                <button
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                    className="px-4 py-2 rounded bg-blue-500 text-white cursor-pointer text-sm transition-colors hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed mr-2.5"
+                >
+                    {isLoading ? '처리 중...' : 'Submit'}
+                </button>
+                <button
+                    onClick={() => abortController.current?.abort()}
+                    className="px-4 py-2 rounded bg-red-500 text-white cursor-pointer text-sm transition-colors hover:bg-red-600"
+                >
+                    Abort
+                </button>
+
+                {executionTime !== null && (
+                    <div className="mt-2.5 p-2.5 bg-gray-100 rounded text-sm text-gray-600">
+                        <strong>전체 실행 시간:</strong> {executionTime.toFixed(2)}ms
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
