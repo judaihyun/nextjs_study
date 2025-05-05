@@ -13,7 +13,7 @@ type Message = {
 };
 
 const ChatContainer = () => {
-    const { session } = useSessionStore((state) => state);
+    const { session } = useSessionStore(state => state);
     const abortController = useRef<AbortController | null>(null);
 
     const [messages, setMessages] = useState<Message[]>([
@@ -36,7 +36,6 @@ const ChatContainer = () => {
         abortController.current?.abort();
         const controller = new AbortController();
         abortController.current = controller;
-        const startTime = performance.now();
         setIsLoading(true);
         setExecutionTime(null);
         setMessages([
@@ -46,10 +45,10 @@ const ChatContainer = () => {
                 content: "새로운 질문입니다."
             }
         ]);
-        main(controller.signal, startTime);
+        main(controller.signal);
     };
 
-    const main = async (signal: AbortSignal, startTime: number) => {
+    const main = async (signal: AbortSignal) => {
         const apis = [
             clientApi.analysisGuide,
             clientApi.sqlGeneration,
@@ -57,12 +56,14 @@ const ChatContainer = () => {
         ];
         const results = new Array(apis.length).fill(null);
         let renderedCount = 0;
-
         const promises = apis.map((apiFn, idx) =>
             apiFn(signal)
                 .then(res => {
                     results[idx] = res;
-                    while (renderedCount < results.length && results[renderedCount]) {
+                    while (
+                        renderedCount < results.length &&
+                        results[renderedCount]
+                    ) {
                         const { data, delay } = results[renderedCount]!;
                         setMessages(prev => [
                             ...prev,
@@ -89,9 +90,6 @@ const ChatContainer = () => {
         );
 
         Promise.allSettled(promises).then(() => {
-            const endTime = performance.now();
-            const totalTime = endTime - startTime;
-            setExecutionTime(totalTime);
             setIsLoading(false);
         });
     };
