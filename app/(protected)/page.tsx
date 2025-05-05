@@ -1,7 +1,5 @@
-import Main from "./main";
+import MainContainer from "@/component/main/MainContainer";
 
 export default function Home() {
-    return (
-        <Main />
-    );
+    return <MainContainer />;
 }
